@@ -1,0 +1,65 @@
+class SquareGame {
+    field Square square;
+    field int dir;
+
+    constructor SquareGame new() {
+        let square = Square.new(120,120,20);
+        let dir = 0;
+        return this;
+    }
+
+    method void dispose() {
+        do square.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void move() {
+        if (dir = 1) {
+            do square.moveUp();
+        }
+        if (dir = 2) {
+            do square.moveRight();
+        }
+        if (dir = 3) {
+            do square.moveDown();
+        }
+        if (dir = 4) {
+            do square.moveLeft();
+        }
+        do Sys.wait(20);
+        return;
+    }
+
+    method void run() {
+        var boolean exit;
+        var char key;
+        let exit = false;
+
+        while (~exit) {
+            while (key = 0) {
+                let key = Keyboard.keyPressed();
+                do move();
+            }
+
+            if (key = 131) {
+                let dir = 1;
+            }
+            if (key = 132) {
+                let dir = 2;
+            }
+            if (key = 133) {
+                let dir = 3;
+            }
+            if (key = 130) {
+                let dir = 4;
+            }
+
+            while (~(key = 0)) {
+                let key = Keyboard.keyPressed();
+                do move();
+            }
+        }
+        return;
+    }
+}
