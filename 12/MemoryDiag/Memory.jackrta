@@ -1,0 +1,86 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * This library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */ 
+
+class Memory {
+
+    static Array ram;
+    static Array freelist;
+    static int heapBase;
+    static int NEXT;
+    static int SIZE;
+
+    /** Initializes the class. */
+    function void init() {
+        let ram = 0;
+        let NEXT = 0;
+        let SIZE = 1;
+        let heapBase = 2048;
+        let freelist = heapBase;
+        let freelist[NEXT] = null;  // address next
+        let freelist[SIZE] = 14335; // size
+        return;
+    }
+
+    /** Finds an available RAM block of the given size and returns
+     *  a reference to its base address. */
+    function int alloc(int size) {
+        var Array prev, current, keep;
+        
+        let current = freelist;
+        let prev = 0;
+        while ((~(current = null)) & current[SIZE] < size + 2) {
+            let prev = current;
+            let current = current[NEXT];
+        }
+
+        if (current = null) {
+            return -1;
+        }
+
+        let keep = current + size + 2; 
+        let keep[NEXT] = current[NEXT];
+        let keep[SIZE] = current[SIZE] - size - 2;
+        let current[NEXT] = null;
+        let current[SIZE] = size;
+
+        if (prev = 0) {
+            let freelist = keep;
+        } else {
+            let prev[NEXT] = keep;
+        }
+
+        return current + 2;
+
+    }
+    
+    /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(int o) {
+        var Array current;
+        let current = o - 2;
+        let current[NEXT] = freelist;
+        let freelist = current;
+        return;
+    }    
+
+    /** Returns the RAM value at the given address. */
+    function int peek(int address) {
+        return ram[address];
+    }
+
+    /** Sets the RAM value at the given address to the given value. */
+    function void poke(int address, int value) {
+        let ram[address] = value;
+        return;
+    }
+
+
+}
