@@ -59,6 +59,10 @@ class Math {
         return sum;
     }
 
+    function bool bitmask(y) {
+        return twoToThe[y];
+    }
+
     /** Returns the integer part of x / y.
      *  When a Jack compiler detects the division operator '/'
      *  an an expression, it handles it by invoking this method.
