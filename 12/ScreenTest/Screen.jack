@@ -59,54 +59,121 @@ class Screen {
         var int address, addr_pixels, pixel;
 
         let address = (32 * row) + (col / 16);
-        // let addr_pixels = Memory.peek(screenBase + address);
-        // let addr_pixels = screen[address];
+        let addr_pixels = Memory.peek(screenBase + address);
+        //let addr_pixels = screen[address];
         let pixel = twoToThe[col & 15];
 
         if (paint) {
-            // let addr_pixels = addr_pixels | pixel;
-            let screen[address] = screen[address] | pixel; 
+            let addr_pixels = addr_pixels | pixel;
+            //let screen[address] = screen[address] | pixel; 
         } else {
-           // let addr_pixels = addr_pixels & ~pixel;
-            let screen[address] = screen[address] & ~pixel; 
+            let addr_pixels = addr_pixels & ~pixel;
+            //let screen[address] = screen[address] & ~pixel; 
         } 
 
-        // do Memory.poke(screenBase + address, addr_pixels);
+        do Memory.poke(screenBase + address, addr_pixels);
         return; 
     }
 
     /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
     function void drawLine(int x1, int y1, int x2, int y2) {
-        var int dx, dy, a, b, diff;
+        var int dx, dy, a, b, diff, temp;
+        var boolean condition;
 
         let a = 0;
         let b = 0;
-        let dx = x2 - x1;
-        let dy = y2 - y1;
+
+        if (x1 > x2) {
+            let dx = x1 - x2;
+        } else {
+            let dx = x2 - x1;
+        }
+
+        if (y1 > y2) {
+            let dy = y1 - y2;
+        } else {
+            let dy = y2 - y1;
+        }
+
         let diff = 0;
+        while (Screen.didReach(a,b,dx,dy)) {
+            if (y1 > y2) {
+                if (x1 > x2) {
+                    do Screen.drawPixel(x1 -a, y1 - b);
+                }  else {
+                    do Screen.drawPixel(x1 +a, y1 - b);
+                }
+            } else {
+                if (x1 > x2) {
+                    do Screen.drawPixel(x1 -a, y1 + b);
+                }  else {
+                    do Screen.drawPixel(x1 +a, y1 + b);
+                }
+            }
 
-        while (~(a > dx) & ~(b > dy)) {
-            do Screen.drawPixel(x1 +a, y1 + b);
-
-            if (diff > 0) {
+            if (diff < 0) {
                 let a = a + 1;
-                let diff = diff - dx;
+                let diff = diff + dy;
             } else {
                 let b = b + 1;
-                let diff = diff + dy;
+                let diff = diff - dx;
             }
         } 
         return;
     }
 
+    function boolean didReach(int a, int b, int dx, int dy) {
+        if (dx = 0) {
+            return (~(b > dy)); 
+        } else {
+            if (dy = 0) {
+                return ~(a > dx); 
+            } else {
+                return (~(a > dx) & ~(b > dy)); 
+            }
+        }
+    }
+
     /** Draws a filled rectangle whose top left corner is (x1, y1)
      *  and bottom right corner is (x2,y2), using the current color. */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
+        var int dy, temp;
+
+        if (x1 > x2) {
+            let temp = x1;
+            let x1 = x2;
+            let x2 = temp;
+        }
+
+        if (y1 > y2) {
+            let temp = y1;
+            let y1 = y2;
+            let y2 = temp;
+        }
+
+        let dy = y1;
+        while (~(dy = y2)) {
+            do Screen.drawLine(x1,dy,x2,dy);
+            let dy = dy + 1;
+        }
+
         return;
     }
 
     /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
     function void drawCircle(int x, int y, int r) {
+        var int dy, x1, x2;
+
+        let dy = -r; 
+        while (~(dy = r)) {
+            let x1 = x - Math.sqrt((r * r)  - (dy * dy));
+            let x2 = x + Math.sqrt((r * r)  - (dy * dy));
+            do Screen.drawLine(x1, y+dy, x2, y+dy);
+            let dy = dy + 1;
+            // do Screen.drawPixel(x1, y+dy);
+            // do Screen.drawPixel(x2, y+dy);
+        }
+
         return;
     }
 }
