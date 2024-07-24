@@ -16,6 +16,9 @@ class Main {
     
         do Output.moveCursor(0, 63);
         do Output.printChar(66);
+        
+        do Output.moveCursor(0, 63);
+        do Output.printChar(66);
         do Output.moveCursor(22, 0);
         do Output.printChar(67);
         do Output.moveCursor(22, 63);
